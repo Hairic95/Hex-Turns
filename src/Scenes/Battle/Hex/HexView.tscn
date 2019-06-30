@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Scenes/Battle/Hex/HexView.gd" type="Script" id=1]
+[ext_resource path="res://assets/temp/endhall_style/base_hex.png" type="Texture" id=2]
+
+[node name="HexButton" type="Node2D"]
+position = Vector2( 56, 30 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="image" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+

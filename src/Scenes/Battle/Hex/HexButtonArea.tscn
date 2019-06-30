@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Scenes/Battle/Hex/HexButtonArea.gd" type="Script" id=1]
+[ext_resource path="res://assets/temp/endhall_style/hex_area_singol.png" type="Texture" id=2]
+
+[node name="HexButton" type="Node2D"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="click_area" type="Area2D" parent="."]
+input_pickable = true
+gravity_vec = Vector2( 0, 1 )
+gravity = 98.0
+linear_damp = 0.1
+angular_damp = 1.0
+audio_bus_override = false
+audio_bus_name = "Master"
+
+[node name="coll" type="CollisionPolygon2D" parent="click_area"]
+build_mode = 0
+polygon = PoolVector2Array( 2, -10, 10, -6, 10, 6, 2, 9, -2, 9, -10, 6, -10, -6, -2, -10 )
+
+[node name="selectable" type="Sprite" parent="."]
+modulate = Color( 1, 1, 1, 0.301961 )
+texture = ExtResource( 2 )
+
+[connection signal="mouse_entered" from="click_area" to="." method="_on_click_area_mouse_entered"]
+[connection signal="mouse_exited" from="click_area" to="." method="_on_click_area_mouse_exited"]

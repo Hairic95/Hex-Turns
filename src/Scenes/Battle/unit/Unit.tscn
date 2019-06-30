@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Scenes/Battle/unit/Unit.gd" type="Script" id=1]
+[ext_resource path="res://src/Scenes/Battle/action/Action.tscn" type="PackedScene" id=2]
+
+[node name="Unit" type="Node"]
+script = ExtResource( 1 )
+action_ref = null
+
+[node name="moves" type="Node" parent="."]
+
+[node name="MoveAction" parent="moves" instance=ExtResource( 2 )]
+type = "move"
+radius = 1
+damage = 0
+
+[node name="MoveAction2" parent="moves" instance=ExtResource( 2 )]
+type = "attack"
+target = "singol"
+radius = 1
+damage = 0
+
