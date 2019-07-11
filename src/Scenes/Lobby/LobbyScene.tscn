@@ -3,46 +3,63 @@
 [ext_resource path="res://src/Scenes/Lobby/LobbyScene.gd" type="Script" id=1]
 
 [node name="LobbyScene" type="Control"]
-anchor_left = 0.0
-anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = false
-mouse_filter = 0
-mouse_default_cursor_shape = 0
-size_flags_horizontal = 1
-size_flags_vertical = 1
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CharactersPanel" type="ScrollContainer" parent="."]
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 0.0
+visible = false
 anchor_bottom = 1.0
 margin_right = 52.0
-rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = true
-mouse_filter = 0
-mouse_default_cursor_shape = 0
-size_flags_horizontal = 1
-size_flags_vertical = 1
 scroll_horizontal_enabled = false
-scroll_horizontal = 0
-scroll_vertical_enabled = true
-scroll_vertical = 0
-scroll_deadzone = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CharactersPanel"]
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 0.0
-anchor_bottom = 0.0
-rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = false
-mouse_filter = 1
-mouse_default_cursor_shape = 0
-size_flags_horizontal = 1
-size_flags_vertical = 1
-alignment = 0
 
+[node name="ConnectionPanel" type="Panel" parent="."]
+margin_left = 70.0
+margin_top = 30.0
+margin_right = 240.0
+margin_bottom = 160.0
+
+[node name="IPAddress" type="LineEdit" parent="ConnectionPanel"]
+margin_left = 30.0
+margin_top = 10.0
+margin_right = 140.0
+margin_bottom = 34.0
+text = "127.0.0.1"
+align = 1
+
+[node name="Port" type="LineEdit" parent="ConnectionPanel"]
+margin_left = 30.0
+margin_top = 40.0
+margin_right = 140.0
+margin_bottom = 64.0
+text = "9000"
+align = 1
+
+[node name="HostMatch" type="Button" parent="ConnectionPanel"]
+margin_left = 10.0
+margin_top = 90.0
+margin_right = 80.0
+margin_bottom = 120.0
+text = "HOST"
+
+[node name="JoinMatch" type="Button" parent="ConnectionPanel"]
+margin_left = 90.0
+margin_top = 90.0
+margin_right = 160.0
+margin_bottom = 120.0
+text = "JOIN"
+
+[node name="Button" type="Button" parent="."]
+margin_left = 90.0
+margin_top = 180.0
+margin_right = 220.0
+margin_bottom = 218.0
+disabled = true
+text = "START"
+[connection signal="pressed" from="ConnectionPanel/HostMatch" to="." method="_on_HostMatch_pressed"]
+[connection signal="pressed" from="ConnectionPanel/JoinMatch" to="." method="_on_JoinMatch_pressed"]
