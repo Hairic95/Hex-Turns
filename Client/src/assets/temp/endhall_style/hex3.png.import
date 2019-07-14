@@ -1,0 +1,34 @@
+[remap]
+
+importer="texture"
+type="StreamTexture"
+path="res://.import/hex3.png-f0b77f9e54c71a03bb707c0ec1c51086.stex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://assets/temp/endhall_style/hex3.png"
+dest_files=[ "res://.import/hex3.png-f0b77f9e54c71a03bb707c0ec1c51086.stex" ]
+
+[params]
+
+compress/mode=0
+compress/lossy_quality=0.7
+compress/hdr_mode=0
+compress/bptc_ldr=0
+compress/normal_map=0
+flags/repeat=0
+flags/filter=false
+flags/mipmaps=false
+flags/anisotropic=false
+flags/srgb=2
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/HDR_as_SRGB=false
+process/invert_color=false
+stream=false
+size_limit=0
+detect_3d=false
+svg/scale=1.0

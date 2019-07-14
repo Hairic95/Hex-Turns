@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Scenes/Lobby/LobbyScene.gd" type="Script" id=1]
+[ext_resource path="res://src/Scenes/Lobby/ui/WebRoomAccess.tscn" type="PackedScene" id=2]
+
+[node name="LobbyScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+WebRoomAccess_reference = ExtResource( 2 )
+
+[node name="Rooms" type="ScrollContainer" parent="."]
+margin_left = 10.0
+margin_top = 30.0
+margin_right = 310.0
+margin_bottom = 230.0
+scroll_horizontal_enabled = false
+
+[node name="Grid" type="GridContainer" parent="Rooms"]
+columns = 2
