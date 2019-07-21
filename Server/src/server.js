@@ -12,6 +12,7 @@ var connectedPeers = 0;
 var idIndex = 0;
 var clients = [];
 
+const MSGTAG_ALERT = 0
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////// LOBBIES DEFINITION AREA /////////////////////////////
@@ -20,6 +21,10 @@ const MSGTAG_ROOM_REFRESH = "ROOM_TAG_REFRESH";
 const MSGTAG_ROOM_JOIN = "ROOM_TAG_JOIN";
 const MSGTAG_ROOM_RESET = "ROOM_TAG_RESET";
 const MSGTAG_ROOM_OCCUPIED = "ROOM_TAG_OCCUPIED";
+const MSGTAG_ROOM_ACCESS_DENIED = "ROOM_TAG_DENIED";
+const MSGTAG_ROOM_START_GAME = "ROOM_START_GAME";
+
+const MSGTAG_ROOM_EXIT = "ROOM_TAG_EXIT";
 
 const STATE_ROOM_EMPTY = "ROOM_STATE_EMPTY";
 const STATE_ROOM_WAITING = "ROOM_STATE_WAITING";
@@ -36,22 +41,30 @@ class Room {
     this.state = STATE_ROOM_EMPTY;
   }
 
-  addPlayer(client){
-    if (this.state == STATE_ROOM_EMPTY || this.state == STATE_ROOM_WAITING){
+  AddPlayer(client){
+    if (this.players.includes(client)){
+      client.sendMessage(MSGTAG_ROOM_ACCESS_DENIED, {"message": "You are already in this room"})
+      return;
+    }
+    if (this.state == STATE_ROOM_EMPTY ||
+        this.state == STATE_ROOM_WAITING){
 
       var opponent = new Client(null);
 
       this.players.forEach((otherClient) => {
         if (!(otherClient === client)) {
           opponent = otherClient;
-          otherClient.sendMessage(MSGTAG_ROOM_REFRESH, {opponent: client})
+          otherClient.sendMessage(MSGTAG_ROOM_REFRESH, this)
         }
       });
 
       client.state = CLIENT_STATE_WAITING;
 
       this.players.push(client);
-      client.sendMessage(MSGTAG_ROOM_JOIN, {roomId: this.id, opponent: opponent});
+      client.sendMessage(MSGTAG_ROOM_JOIN, this);
+      clients.forEach((client) =>  {
+        RefreshLobbyForClient(client);
+      });
     }
     else {
       client.sendMessage(MSGTAG_ROOM_OCCUPIED, {message: "Not enough room in the room."});
@@ -60,8 +73,37 @@ class Room {
     console.log(this);
     this.CheckRoomPlayers();
   }
-
-  reset(){
+  RemovePlayerFromLobby(client) {
+    if (this.players.includes(client)) {
+      this.players.splice(client, 1);
+    }
+    this.players.forEach((client) => {
+      client.sendMessage(MSGTAG_ROOM_REFRESH, this);
+    });
+    client.sendMessage(MSGTAG_ROOM_EXIT, {message: "You have been removed"});
+  }
+  StartGame() {
+    if (this.players.length > 1) {
+      this.players.forEach((client) => {
+        var playerOrder = this.players;
+        var units = [];
+        playerOrder.forEach((player) => {
+          var unitList = [1, 1, 1, 1];
+          units.push({
+            id: player.id,
+            unitList: unitList
+          });
+        });
+        client.sendMessage(MSGTAG_ROOM_START_GAME, {order: playerOrder, units: units})
+      });
+    }
+    else {
+      this.players.forEach((client) => {
+        client.sendMessage(MSGTAG_ALERT, {message: "Not enough player to start!"})
+      });
+    }
+  }
+  Reset(){
     this.players.forEach((client) => {
       client.sendMessage(MSGTAG_ROOM_RESET, {message: "The room has been reset."});
       client.state = CLIENT_STATE_ONLINE;
@@ -157,7 +199,11 @@ function ShowActiveConnections() {
 const MSGTAG_SERVER_ROOMS = "SERVER_TAG_GET_ROOMS";
 const MSGTAG_SERVER_PLAYER_NUMBERS = "SERVER_TAG_P_NUMBERS";
 
+const MSGTAG_REQUEST_LEAVE_ROOM = "REQUEST_LEAVE_ROOM";
 const MSGTAG_REQUEST_JOIN_ROOM = "REQUEST_JOIN_ROOM";
+const MSGTAG_REQUEST_ROOMS_REFRESH = "REQUEST_ROOMS_REFRESH";
+const MSGTAG_REQUEST_START_GAME = "REQUEST_START_GAME";
+
 const MSGTAG_SERVER_PLAYER_DATA = "SERVER_TAG_P_DATA";
 
 const httpServer = http.createServer(
@@ -232,12 +278,47 @@ wsServer.on("connection", (socket, request) => {
     var data = JSON.parse(message);
 
     switch (data.tag) {
+      // Case where the player Try to connect to a lobby
       case MSGTAG_REQUEST_JOIN_ROOM:
+        //Search for the client of the socket
         var player = clients.find((client) => {
           if (client.id == data.data.playerId)
             return client;
-        })
-        playRooms[data.data.roomId -1].addPlayer(player);
+        });
+        // Check if the player isnt already in another lobby
+        var occupiedRoom = null;
+        playRooms.forEach((room) => {
+          if (room.players.includes(player))
+            occupiedRoom = room;
+        });
+        if (occupiedRoom != null) {
+          player.sendMessage(MSGTAG_ROOM_ACCESS_DENIED, {message: "You are already in a Lobby, don't be greedy!"});
+          return;
+        }
+        // add the player to the lobby, if possible
+        playRooms[data.data.roomId -1].AddPlayer(player);
+        break;
+      case MSGTAG_REQUEST_LEAVE_ROOM:
+        var occupiedRoom;
+        playRooms.forEach((room) => {
+          if (room.players.includes(connectedClient))
+            occupiedRoom = room;
+        });
+        if (occupiedRoom != null) {
+          occupiedRoom.RemovePlayerFromLobby(connectedClient);
+        }
+        break;
+      case MSGTAG_REQUEST_ROOMS_REFRESH:
+        RefreshLobbyForClient(connectedClient);
+        break;
+      case MSGTAG_REQUEST_START_GAME:
+        var roomToStart;
+        console.log(data.data.roomId);
+        playRooms.forEach((room) => {
+          if (room.id == data.data.roomId)
+            roomToStart = room;
+        });
+        roomToStart.StartGame();
         break;
       default:
 
@@ -248,6 +329,11 @@ wsServer.on("connection", (socket, request) => {
   socket.on("close", (code) => {
     console.log("Connection interrupted with " + connectedClient.username + " Code: " + code);
     RemoveClient(connectedClient);
+
+    playRooms.forEach((room) => {
+      if (room.players.includes(connectedClient))
+        room.RemovePlayerFromLobby(connectedClient);
+    });
 
     /*wsServer.clients.forEach((socket) => {
       var client = getClientBySocket(socket);
