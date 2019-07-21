@@ -1,0 +1,61 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Scenes/Lobby/LobbyScene.gd" type="Script" id=1]
+[ext_resource path="res://src/Scenes/Lobby/ui/WebRoomAccess.tscn" type="PackedScene" id=2]
+
+[node name="LobbyScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+WebRoomAccess_reference = ExtResource( 2 )
+
+[node name="Rooms" type="ScrollContainer" parent="."]
+margin_left = 10.0
+margin_top = 30.0
+margin_right = 630.0
+margin_bottom = 460.0
+scroll_horizontal_enabled = false
+
+[node name="Grid" type="GridContainer" parent="Rooms"]
+columns = 4
+
+[node name="BattlePanel" type="Panel" parent="."]
+margin_left = 50.0
+margin_top = -430.0
+margin_right = 600.0
+margin_bottom = -50.0
+
+[node name="Player1" type="Label" parent="BattlePanel"]
+margin_left = 30.0
+margin_top = 50.0
+margin_right = 190.0
+margin_bottom = 90.0
+align = 1
+valign = 1
+
+[node name="Player2" type="Label" parent="BattlePanel"]
+margin_left = 340.0
+margin_top = 50.0
+margin_right = 510.0
+margin_bottom = 84.0
+align = 1
+valign = 1
+
+[node name="StartButton" type="Button" parent="BattlePanel"]
+margin_left = 90.0
+margin_top = 140.0
+margin_right = 250.0
+margin_bottom = 160.0
+text = "START"
+
+[node name="ExitLobbyButton" type="Button" parent="BattlePanel"]
+margin_left = 300.0
+margin_top = 140.0
+margin_right = 470.0
+margin_bottom = 160.0
+text = "EXIT LOBBY"
+[connection signal="pressed" from="BattlePanel/StartButton" to="." method="_on_StartButton_pressed"]
+[connection signal="pressed" from="BattlePanel/ExitLobbyButton" to="." method="_on_ExitLobbyButton_pressed"]
