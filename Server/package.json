@@ -25,15 +25,7 @@
   },
   "homepage": "https://github.com/Hairic95/Hex-Turns#readme",
   "dependencies": {
-    "@gd-com/utils": "^4.0.1",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "godot": "^0.7.10",
-    "nodemon": "^1.19.1",
-    "socket.io": "^2.2.0",
-    "socketio-over-nodejs": "^3.0.3",
     "uniqid": "^5.0.3",
-    "websocket": "^1.0.29",
-    "ws": "^7.0.1"
+    "ws": "^7.1.1"
   }
 }
