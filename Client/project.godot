@@ -24,6 +24,11 @@ config/name="TB D&C"
 run/main_scene="res://src/Scenes/Battle/BattleScene.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+API_CONNECTION="*res://src/Autoloads/API_CONNECTION.gd"
+CONSTS="*res://src/Autoloads/CONSTS.gd"
+
 [display]
 
 window/size/width=320
