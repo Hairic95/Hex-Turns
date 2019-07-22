@@ -175,34 +175,47 @@ func set_hex_selectable(id):
 	var hex = get_hex(id)
 	emit_signal("set_hex_selectable", hex.id, hex.position)
 
-
 """
 ////////////////////////////////////////////////////
                   UNIT CODE AREA
 ////////////////////////////////////////////////////
 """
 
-export (PackedScene) var unit_ref
+var unitList = []
+func GetUnitList():
+	return unitList
 
 signal unit_created_at(data, pos)
 signal play_unit_anim(id, anim_name)
 
-func add_unit_at(unit_data, hex_pos):
+func AddUnitAt(unitData, hexPos : Vector2):
 	
-	var new_unit = unit_ref.instance()
-	$units.add_child(new_unit)
+	var moves = [
+		{
+			"type" : CONSTS.ACTION_TYPE_MOVE,
+			"damage" : 0,
+			"radius" : 5
+		},
+		{
+			"type" : CONSTS.ACTION_TYPE_ATTACK,
+			"damage" : 3,
+			"radius" : 1
+		}
+	]
 	
-	new_unit.id = unit_data.id
+	var newUnit = Unit.new(moves, hexPos)
 	
-	new_unit.position = hex_pos
+	unitList.append(newUnit)
 	
-	remove_passable_hex(hex_pos)
+	newUnit.id = unitData.id
+	newUnit.playerId = unitData.player_id
+	newUnit.position = hexPos
+	remove_passable_hex(hexPos)
+	get_hex(hexPos).current_unit = newUnit
 	
-	get_hex(hex_pos).current_unit = new_unit
+	newUnit.connect("play_anim", self, "play_unit_animation")
 	
-	new_unit.connect("play_anim", self, "play_unit_animation")
-	
-	emit_signal("unit_created_at", unit_data, get_hex(hex_pos).position)
+	emit_signal("unit_created_at", unitData, get_hex(hexPos).position)
 
 func play_unit_animation(id, anim_name):
 	emit_signal("play_unit_anim",id, anim_name)
@@ -218,8 +231,9 @@ signal remove_unit_from_turn(unit)
 
 func handle_action(user, action, hex_targets):
 	
+	
 	match(action.type):
-		"move":
+		CONSTS.ACTION_TYPE_MOVE:
 			var start = get_hex(user.position)
 			var end = get_hex(hex_targets[0])
 			var vec3path = astar.get_point_path(start.astar_id, end.astar_id)
@@ -235,18 +249,9 @@ func handle_action(user, action, hex_targets):
 			
 			user.position = hex_targets[0]
 			end.current_unit = user
-		"attack":
-			
+		CONSTS.ACTION_TYPE_ATTACK:
 			var target = get_hex(hex_targets[0]).current_unit
 			target.dies()
-			
 			emit_signal("remove_unit_from_turn", target)
-	
-	
 	remove_passable_hex(user.position)
 
-"""
-TEST AREA
-"""
-func _ready():
-	pass

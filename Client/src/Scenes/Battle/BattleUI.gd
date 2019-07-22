@@ -48,3 +48,8 @@ func action_selected(action):
 			actionButton.set_pressed(false)
 	
 	emit_signal("action_selected", action)
+
+func ShowUnitChoice():
+	pass
+func ShowWaiting():
+	pass

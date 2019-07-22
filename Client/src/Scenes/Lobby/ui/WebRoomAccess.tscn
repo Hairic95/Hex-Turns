@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/Scenes/Lobby/ui/WebRoomAccess.gd" type="Script" id=1]
+
+[node name="WebRoomAccess" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -170.0
+margin_bottom = -180.0
+rect_min_size = Vector2( 150, 60 )
+script = ExtResource( 1 )
+
+[node name="JoinButton" type="Button" parent="."]
+margin_left = 90.0
+margin_top = 30.0
+margin_right = 140.0
+margin_bottom = 50.0
+text = "JOIN"
+
+[node name="PlayersList" type="ItemList" parent="."]
+margin_left = 10.0
+margin_top = 4.0
+margin_right = 80.0
+margin_bottom = 50.0
+[connection signal="pressed" from="JoinButton" to="." method="_on_JoinButton_pressed"]

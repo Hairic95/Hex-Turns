@@ -29,6 +29,7 @@ func get_unit(id):
 
 func set_light(id, value):
 	var unit = get_unit(id)
+	print(id)
 	if unit != null:
 		unit.set_light(value)
 

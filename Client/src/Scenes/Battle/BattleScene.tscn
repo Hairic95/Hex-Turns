@@ -1,0 +1,82 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://src/Scenes/Battle/BattleMain.gd" type="Script" id=1]
+[ext_resource path="res://src/Scenes/Battle/BattleEntities.gd" type="Script" id=2]
+[ext_resource path="res://src/Scenes/Battle/Hex/Hex.tscn" type="PackedScene" id=3]
+[ext_resource path="res://src/Scenes/Battle/BattleTurn.gd" type="Script" id=4]
+[ext_resource path="res://src/Scenes/Battle/BattleView.gd" type="Script" id=5]
+[ext_resource path="res://src/Scenes/Battle/Hex/HexView.tscn" type="PackedScene" id=6]
+[ext_resource path="res://src/Scenes/Battle/unit/UnitView.tscn" type="PackedScene" id=7]
+[ext_resource path="res://src/Scenes/Battle/BattleUI.gd" type="Script" id=8]
+[ext_resource path="res://src/Scenes/Battle/Hex/HexButtonArea.tscn" type="PackedScene" id=9]
+[ext_resource path="res://src/Scenes/Battle/ui_component/ActionButton.tscn" type="PackedScene" id=10]
+
+[node name="BattleScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 1 )
+
+[node name="BattleEntities" type="Node" parent="."]
+script = ExtResource( 2 )
+hex_ref = ExtResource( 3 )
+
+[node name="hexes" type="Node" parent="BattleEntities"]
+
+[node name="NetPlayers" type="Node" parent="BattleEntities"]
+
+[node name="BattleTurn" type="Node" parent="."]
+script = ExtResource( 4 )
+
+[node name="BattleView" type="Node2D" parent="."]
+script = ExtResource( 5 )
+hexView_ref = ExtResource( 6 )
+unitView_ref = ExtResource( 7 )
+
+[node name="hexes" type="YSort" parent="BattleView"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="units" type="YSort" parent="BattleView"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="BattleUI" type="Control" parent="."]
+editor/display_folded = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource( 8 )
+hexButtonArea_ref = ExtResource( 9 )
+actionButton_ref = ExtResource( 10 )
+
+[node name="hexes_areas" type="Control" parent="BattleUI"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="move_container" type="Panel" parent="BattleUI"]
+margin_top = 160.0
+margin_right = 320.0
+margin_bottom = 240.0
+
+[node name="actions" type="HBoxContainer" parent="BattleUI/move_container"]
+margin_left = 40.0
+margin_top = 16.0
+margin_right = 144.0
+margin_bottom = 40.0
+
+[node name="units" type="HBoxContainer" parent="BattleUI/move_container"]
+margin_left = 168.0
+margin_top = 16.0
+margin_right = 296.0
+margin_bottom = 40.0
+
+[node name="end_turn" type="Button" parent="BattleUI"]
+margin_left = 240.0
+margin_top = 208.0
+margin_right = 307.0
+margin_bottom = 228.0
+text = "End Turn"
+[connection signal="pressed" from="BattleUI/end_turn" to="BattleTurn" method="_on_end_turn_pressed"]

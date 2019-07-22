@@ -5,6 +5,7 @@ var hex_size = Vector2(22, 22)
 var x_range = 9
 var y_range = 5
 
+signal changeScene(strScene)
 signal connection_error(message)
 
 func _ready():
@@ -26,7 +27,8 @@ func _ready():
 		emit_signal("connection_error", "Couldn't connect virtual hexes to UI.")
 	
 	
-	
+	if $BattleTurn.connect("playerTurnChoice", self, "UpdateUIToPlayerTurn"):
+		emit_signal("connection_error", "Couldn't connect the turn manager to ui logic")
 	if $BattleTurn.connect("new_turn", self, "update_ui_to_unit"):
 		emit_signal("connection_error", "Couldn't connect the turn manager to ui logic")
 	if $BattleTurn.connect("turn_ended", self, "start_turn"):
@@ -44,22 +46,12 @@ func _ready():
 	
 	$BattleEntities.create_level(x_range, y_range, hex_size)
 	
-	$BattleEntities.add_unit_at({"id" : "1"}, Vector2(1, 2))
-	$BattleEntities.add_unit_at({"id" : "2"}, Vector2(1, 3))
+	GenerateUnitsOfPlayers(API_CONNECTION.GetPlayerUnits())
 	
-	$BattleEntities.add_unit_at({"id" : "3"}, Vector2(3, 2))
-	$BattleEntities.add_unit_at({"id" : "4"}, Vector2(4, 3))
-	$BattleEntities.add_unit_at({"id" : "5"}, Vector2(6, 1))
-	$BattleEntities.add_unit_at({"id" : "6"}, Vector2(2, 0))
-	
-	start_turn()
+	$BattleTurn.StartTurn()
 
-func start_turn(unit_list = $BattleEntities/units.get_children()):
-	for unit in unit_list:
-		$BattleTurn.add_battler_to_list(unit)
-	$BattleTurn.pop_action()
 
-func update_ui_to_unit(unit):
+func update_ui_to_unit(unitStat):
 	
 	"""
 	reset units and ui
@@ -68,27 +60,29 @@ func update_ui_to_unit(unit):
 	$BattleUI.reset_ui()
 	$BattleUI.reset_hex_areas()
 	
+	var unit = unitStat.unit
+	
 	$BattleView.set_light(unit.id, true)
 	
-	$BattleUI.create_actionButtons(unit.get_actions())
+	$BattleUI.create_actionButtons(unit.GetActions())
 
 func setup_action(action):
 	
-	var current_unit = $BattleTurn.current_unit
+	var current_unit = $BattleTurn.GetCurrentUnit()
 	
 	$BattleUI.reset_hex_areas()
 	
-	if action.type == "move":
+	if action.type == CONSTS.ACTION_TYPE_MOVE:
 		$BattleEntities.add_passable_hex(current_unit.position)
 	
 	$BattleTurn.current_action = action
 	
 	match(action.type):
-		"move":
+		CONSTS.ACTION_TYPE_MOVE:
 			var passable_hexes = $BattleEntities.get_hexes_at_distance_from(current_unit.position, current_unit.movement)
 			for hex in passable_hexes:
 				$BattleEntities.set_hex_selectable(hex.id)
-		"attack":
+		CONSTS.ACTION_TYPE_ATTACK:
 			var selectable_hexes = $BattleEntities.get_first_ranged_hexes(current_unit.position, action.radius)
 			
 			for hex in selectable_hexes:
@@ -101,3 +95,33 @@ func hex_pressed(id):
 
 func finish_turn(unit):
 	$BattleEntities.remove_passable_hex(unit.position)
+
+func GenerateUnitsOfPlayers(playersUnits : Array):
+	
+	var firstPlayer = true
+	for playerCollection in playersUnits:
+		var i = 0
+		for unit in playerCollection.unitList:
+			if firstPlayer:
+				$BattleEntities.AddUnitAt({"id" : i, "player_id": playerCollection.id}, Vector2(0, i))
+				if i != 1:
+					i += 1
+				else:
+					 i += 2 
+			else:
+				$BattleEntities.AddUnitAt({"id": i + 8, "player_id": playerCollection.id}, Vector2(7, i))
+				if i != 1:
+					i += 1
+				else:
+					 i += 2
+		firstPlayer = false
+	
+	for unit in $BattleEntities.GetUnitList():
+		$BattleTurn.add_battler_to_list(unit)
+
+
+func UpdateUIToPlayerTurn(currentPlayerId):
+	if currentPlayerId == API_CONNECTION.yourData.id:
+		$BattleUI.ShowUnitChoice()
+	else:
+		$BattleUI.ShowWaiting()
