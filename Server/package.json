@@ -2,7 +2,7 @@
   "name": "hexturnwebapi",
   "version": "1.0.0",
   "description": "A Web API for the game Hex Turn used to create accounts and for match making",
-  "main": "src/main.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "nodemon app",
     "test": "echo \"Error: no test specified\" && exit 1"
